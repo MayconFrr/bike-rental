@@ -1,4 +1,5 @@
 plugins {
+    id 'com.google.cloud.tools.jib' version '3.2.1'
     id "io.freefair.lombok" version "6.4.3"
     id 'org.springframework.boot' version '2.6.7'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
@@ -35,4 +36,26 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+jib {
+    from {
+        auth {
+            username = "${System.getenv('DOCKERHUB_USERNAME')}"
+            password = "${System.getenv('DOCKERHUB_TOKEN')}"
+        }
+        image = "eclipse-temurin:${sourceCompatibility}-alpine"
+    }
+    to {
+        auth {
+            username = "${System.getenv('HEROKU_USERNAME')}"
+            password = "${System.getenv('HEROKU_API_KEY')}"
+        }
+        image = "registry.heroku.com/${System.getenv('HEROKU_APP_NAME')}/web"
+    }
+    container {
+        environment = [
+                SPRING_PROFILES_ACTIVE: 'prod',
+        ]
+    }
 }
