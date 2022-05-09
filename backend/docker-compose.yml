@@ -1,0 +1,41 @@
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bike-rental
+      PGDATA: /data/postgres
+    volumes:
+      - bike-rental:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - bike-rental
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-password}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - bike-rental
+    restart: unless-stopped
+
+networks:
+  bike-rental:
+    driver: bridge
+
+volumes:
+  bike-rental:
+    driver: local
+  pgadmin:
+    driver: local
