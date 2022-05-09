@@ -1,0 +1,22 @@
+server:
+  port: ${PORT}
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DATABASE_URL}
+    tomcat:
+      initial-size: 5
+      max-active: 10
+      max-idle: 5
+      min-idle: 2
+      remove-abandoned: true
+  devtools:
+    add-properties: false
+    livereload:
+      enabled: false
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate

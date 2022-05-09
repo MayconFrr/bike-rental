@@ -1,0 +1,23 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+
+spring:
+  application:
+    name: bike-rental
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/bike-rental
+    username: postgres
+    password: postgres
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: true
+
+springdoc:
+  api-docs:
+    path: /api-docs

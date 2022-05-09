@@ -1,0 +1,61 @@
+plugins {
+    id 'com.google.cloud.tools.jib' version '3.2.1'
+    id "io.freefair.lombok" version "6.4.3"
+    id 'org.springframework.boot' version '2.6.7'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group = 'io.github.mayconfrr'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.8'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.flywaydb:flyway-core'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'org.postgresql:postgresql'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+jib {
+    from {
+        auth {
+            username = "${System.getenv('DOCKERHUB_USERNAME')}"
+            password = "${System.getenv('DOCKERHUB_TOKEN')}"
+        }
+        image = "eclipse-temurin:${sourceCompatibility}-alpine"
+    }
+    to {
+        auth {
+            username = "${System.getenv('HEROKU_USERNAME')}"
+            password = "${System.getenv('HEROKU_API_KEY')}"
+        }
+        image = "registry.heroku.com/${System.getenv('HEROKU_APP_NAME')}/web"
+    }
+    container {
+        environment = [
+                SPRING_PROFILES_ACTIVE: 'prod',
+        ]
+    }
+}

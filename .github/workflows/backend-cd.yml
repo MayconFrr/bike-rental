@@ -1,0 +1,51 @@
+name: Bike Rental Deployment
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  validation:
+    name: Gradle Wrapper Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: gradle/wrapper-validation-action@v1
+
+  push:
+    name: Push to Heroku Container Registry
+    needs: validation
+    runs-on: ubuntu-latest
+    environment: backend-prod
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Push to Heroku Container Registry
+        uses: gradle/gradle-build-action@v2
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+          HEROKU_USERNAME: ${{ secrets.HEROKU_USERNAME }}
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        with:
+          arguments: jib
+          build-root-directory: backend
+          gradle-executable: backend/gradlew
+
+  deploy:
+    name: Deploy to Heroku
+    needs: push
+    runs-on: ubuntu-latest
+    environment: backend-prod
+    steps:
+      - uses: actions/checkout@v2
+      - name: Deploy
+        env:
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: heroku container:release -a "${HEROKU_APP_NAME}" web
