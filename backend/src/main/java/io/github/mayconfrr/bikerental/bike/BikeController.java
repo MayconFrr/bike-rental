@@ -2,17 +2,11 @@ package io.github.mayconfrr.bikerental.bike;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import static java.util.stream.Collectors.toMap;
 
 @RestController
 @RequestMapping("/bikes")
@@ -64,19 +58,5 @@ public class BikeController {
     public ResponseEntity<Void> handleBikeNotFound(BikeNotFoundException e) {
         log.info(e.getMessage());
         return ResponseEntity.notFound().build();
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationException(MethodArgumentNotValidException e) {
-        log.info("Validation exception: {}", e.getMessage());
-        Map<String, String> errors = e.getBindingResult().getAllErrors()
-                .stream()
-                .map(FieldError.class::cast)
-                .collect(toMap(
-                        FieldError::getField,
-                        error -> Objects.requireNonNullElse(error.getDefaultMessage(), "Unknown error")
-                ));
-
-        return ResponseEntity.badRequest().body(errors);
     }
 }
